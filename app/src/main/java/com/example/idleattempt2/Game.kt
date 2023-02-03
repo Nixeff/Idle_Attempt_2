@@ -130,6 +130,36 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
     fun reset(){
         money = BigDecimal("0")
+
+        autoList[0]?.upgradeLvl = 1
+        autoList[0]?.upgradeCost = BigDecimal("2.0")
+        autoList[0]?.gainAmount = BigDecimal("0.5")
+        autoList[0]?.gainTime = BigDecimal("500")
+        autoList[0]?.updateText()
+
+        autoList[1]?.upgradeLvl = 0
+        autoList[1]?.upgradeCost = BigDecimal("5.0")
+        autoList[1]?.gainAmount = BigDecimal("1.0")
+        autoList[1]?.gainTime = BigDecimal("1500")
+        autoList[1]?.updateText()
+
+        autoList[2]?.upgradeLvl = 0
+        autoList[2]?.upgradeCost = BigDecimal("10.0")
+        autoList[2]?.gainAmount = BigDecimal("2.0")
+        autoList[2]?.gainTime = BigDecimal("2000")
+        autoList[2]?.updateText()
+
+        autoList[3]?.upgradeLvl = 0
+        autoList[3]?.upgradeCost = BigDecimal("100.0")
+        autoList[3]?.gainAmount = BigDecimal("5.0")
+        autoList[3]?.gainTime = BigDecimal("5000")
+        autoList[3]?.updateText()
+
+        autoList[4]?.upgradeLvl = 0
+        autoList[4]?.upgradeCost = BigDecimal("1000.0")
+        autoList[4]?.gainAmount = BigDecimal("100.0")
+        autoList[4]?.gainTime = BigDecimal("10000")
+        autoList[4]?.updateText()
     }
 
     // Override the onTouchEvent method to detect when the user touches the screen
