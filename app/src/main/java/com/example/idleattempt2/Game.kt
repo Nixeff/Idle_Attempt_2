@@ -79,10 +79,10 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
     fun createAuto(){
         setPaintSettings()
         autoList[0] = Auto(1,BigDecimal("2.0"),BigDecimal("0.5"),BigDecimal("500"),600,400, btnPaint,txtPaint,btnDePaint)
-        autoList[1] = Auto(1,BigDecimal("5.0"), BigDecimal("1.0"),BigDecimal("1500"),600,600, btnPaint,txtPaint,btnDePaint)
-        autoList[2] = Auto(1,BigDecimal("10.0"),BigDecimal("2.0"),BigDecimal("2000"),600,800, btnPaint,txtPaint,btnDePaint)
-        autoList[3] = Auto(1,BigDecimal("100.0"),BigDecimal("5.0"),BigDecimal("5000"),600,1000, btnPaint,txtPaint,btnDePaint)
-        autoList[4] = Auto(1,BigDecimal("1000.0"),BigDecimal("100.0"),BigDecimal("10000"),600,1200, btnPaint,txtPaint,btnDePaint)
+        autoList[1] = Auto(0,BigDecimal("5.0"), BigDecimal("1.0"),BigDecimal("1500"),600,600, btnPaint,txtPaint,btnDePaint)
+        autoList[2] = Auto(0,BigDecimal("10.0"),BigDecimal("2.0"),BigDecimal("2000"),600,800, btnPaint,txtPaint,btnDePaint)
+        autoList[3] = Auto(0,BigDecimal("100.0"),BigDecimal("5.0"),BigDecimal("5000"),600,1000, btnPaint,txtPaint,btnDePaint)
+        autoList[4] = Auto(0,BigDecimal("1000.0"),BigDecimal("100.0"),BigDecimal("10000"),600,1200, btnPaint,txtPaint,btnDePaint)
         getAutoData()
     }
 

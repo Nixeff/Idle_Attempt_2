@@ -79,37 +79,41 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
         // Fetch money so we know if you can buy
         money = getMoney()
         if(money.compareTo(upgradeCost) >= 0){
-            GameActivity.instance.game.take(upgradeCost)
-            upgradeLvl = upgradeLvl+1
-
-            if(upgradePath.containsKey(upgradeLvl)){
-                val path = upgradePath.get(upgradeLvl)
-                gainAmount = gainAmount.plus(BigDecimal("0.2"))
-                gainAmount = gainAmount.multiply(path)
-                upgradeCost = upgradeCost.multiply(BigDecimal("1.1"))
+            if(upgradeLvl == 0){
+                GameActivity.instance.game.take(upgradeCost)
+                upgradeLvl = upgradeLvl+1
             } else{
-                gainAmount = gainAmount.plus(BigDecimal("0.2"))
-                upgradeCost = upgradeCost.multiply(BigDecimal("1.1"))
+                GameActivity.instance.game.take(upgradeCost)
+                upgradeLvl = upgradeLvl+1
+
+                if(upgradePath.containsKey(upgradeLvl)){
+                    val path = upgradePath.get(upgradeLvl)
+                    gainAmount = gainAmount.plus(BigDecimal("0.2"))
+                    gainAmount = gainAmount.multiply(path)
+                    upgradeCost = upgradeCost.multiply(BigDecimal("1.1"))
+                } else{
+                    gainAmount = gainAmount.plus(BigDecimal("0.2"))
+                    upgradeCost = upgradeCost.multiply(BigDecimal("1.1"))
+                }
             }
-
-
             updateText()
-
         }
     }
     fun update() {
-        if(gainTime.compareTo(BigDecimal("1000")) <= 0){
-            upgradeLvlText = "${gainPerSec.setScale(2,RoundingMode.FLOOR).toString()}$ /s"
-            Thread.sleep(gainTime.toLong())
-            gain()
-        } else{
-            repeat(gainTime.toInt()){
-                Thread.sleep(1)
-                timeRemaining = timeRemaining.minus(BigDecimal(1))
-                upgradeLvlText = "${timeRemaining.divide(BigDecimal("1000")).setScale(2,RoundingMode.FLOOR).toString()} Sec ${gainAmount.toString()} $"
+        if(upgradeLvl != 0){
+            if(gainTime.compareTo(BigDecimal("1000")) <= 0){
+                upgradeLvlText = "${gainPerSec.setScale(2,RoundingMode.FLOOR).toString()}$ /s"
+                Thread.sleep(gainTime.toLong())
+                gain()
+            } else{
+                repeat(gainTime.toInt()){
+                    Thread.sleep(1)
+                    timeRemaining = timeRemaining.minus(BigDecimal(1))
+                    upgradeLvlText = "${timeRemaining.divide(BigDecimal("1000")).setScale(2,RoundingMode.FLOOR).toString()} Sec ${gainAmount.toString()} $"
+                }
+                timeRemaining = gainTime
+                gain()
             }
-            timeRemaining = gainTime
-            gain()
         }
     }
 
@@ -126,7 +130,10 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
         }
 
         canvas.drawText("Upgrade", btnUpgradeRect.centerX().toFloat()-80f,btnUpgradeRect.centerY().toFloat()+10f, txtPaint)
-        canvas.drawText(upgradeLvlText, x.toFloat(),y.toFloat(), txtPaint)
+        if(upgradeLvl > 0){
+            canvas.drawText(upgradeLvlText, x.toFloat(),y.toFloat(), txtPaint)
+        }
+
         canvas.drawText(upgradeText, 50f,y.toFloat(), txtPaint)
     }
 
