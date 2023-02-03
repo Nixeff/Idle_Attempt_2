@@ -66,11 +66,13 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
     fun getAutoData(){
         var temp = GameActivity.instance.getArrayData("Auto")
+
         for(i in 0..temp.size-1){
             autoList[i]?.upgradeLvl = temp[i]?.get("upgradeLvl")?.toInt() ?: 0
             autoList[i]?.upgradeCost = temp[i]?.get("upgradeCost") ?: BigDecimal("1")
-            autoList[i]?.gainAmount = temp[i]?.get("gainAmount") ?: BigDecimal("1")
-            autoList[i]?.gainTime = temp[i]?.get("gainTime") ?: BigDecimal("1000")
+            autoList[i]?.gainAmount = temp[i]?.get("GainAmount") ?: BigDecimal("100")
+            autoList[i]?.gainTime = temp[i]?.get("GainTime") ?: BigDecimal("1000")
+            autoList[i]?.updateText()
         }
     }
 
@@ -81,6 +83,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         autoList[2] = Auto(1,BigDecimal("10.0"),BigDecimal("2.0"),BigDecimal("2000"),600,800, btnPaint,txtPaint,btnDePaint)
         autoList[3] = Auto(1,BigDecimal("100.0"),BigDecimal("5.0"),BigDecimal("5000"),600,1000, btnPaint,txtPaint,btnDePaint)
         autoList[4] = Auto(1,BigDecimal("1000.0"),BigDecimal("100.0"),BigDecimal("10000"),600,1200, btnPaint,txtPaint,btnDePaint)
+        getAutoData()
     }
 
     fun saveAuto(){
@@ -143,8 +146,6 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
                 reset()
                 saveAuto()
             }
-
-
         }
         return super.onTouchEvent(event)
     }
