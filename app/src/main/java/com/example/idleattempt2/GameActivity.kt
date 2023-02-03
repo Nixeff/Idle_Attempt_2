@@ -1,6 +1,8 @@
 package com.example.idleattempt2
 
 import android.content.Context
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
@@ -15,6 +17,20 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val orientation = resources.configuration.orientation
+        when (orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+            Configuration.ORIENTATION_PORTRAIT -> {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+            else -> {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
+
+
         if (Looper.myLooper() == Looper.getMainLooper()) {
             Log.d("test","main")
         } else {
