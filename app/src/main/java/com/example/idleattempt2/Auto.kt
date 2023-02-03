@@ -66,6 +66,14 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
         }
     }
 
+    fun updateText(){
+        gainToSec = gainTime.divide(BigDecimal("1000"), 2,RoundingMode.HALF_UP)
+        gainRunsPerSec = BigDecimal("1").divide(gainToSec, 2,RoundingMode.HALF_UP)
+        gainPerSec = (gainRunsPerSec.multiply(gainAmount))
+
+        upgradeText = "Lvl: ${upgradeLvl.toString()} Cost: ${upgradeCost.setScale(2,RoundingMode.FLOOR).toString()}$"
+    }
+
     // Upgrade/Level up
     fun upgrade() {
         // Fetch money so we know if you can buy
@@ -85,13 +93,8 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
             }
 
 
-            Log.d("Value",gainTime.toString())
-            gainToSec = gainTime.divide(BigDecimal("1000"), 2,RoundingMode.HALF_UP)
-            Log.d("Value",gainToSec.toString())
-            gainRunsPerSec = BigDecimal("1").divide(gainToSec, 2,RoundingMode.HALF_UP)
-            gainPerSec = (gainRunsPerSec.multiply(gainAmount))
+            updateText()
 
-            upgradeText = "Lvl: ${upgradeLvl.toString()} Cost: ${upgradeCost.setScale(2,RoundingMode.FLOOR).toString()}$"
         }
     }
     fun update() {
@@ -108,9 +111,6 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
             timeRemaining = gainTime
             gain()
         }
-
-
-
     }
 
     fun getMoney():BigDecimal{
