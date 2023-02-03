@@ -9,7 +9,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var button = findViewById<Button>(R.id.startButton)
+        val button = findViewById<Button>(R.id.startButton)
         button.setOnClickListener {
             val intent = Intent(this,GameActivity::class.java)
             startActivity(intent)

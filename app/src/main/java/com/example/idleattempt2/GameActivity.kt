@@ -17,16 +17,15 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val orientation = resources.configuration.orientation
-        when (orientation) {
+        requestedOrientation = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
             Configuration.ORIENTATION_PORTRAIT -> {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
             else -> {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
         }
 
@@ -48,7 +47,7 @@ class GameActivity : AppCompatActivity() {
 
     fun saveData(type : String, data: String){
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
-        var editor = sharedPref.edit()
+        val editor = sharedPref.edit()
         when(type){
             "Money" -> editor.putFloat("Money",data.toFloat())
         }
@@ -57,16 +56,16 @@ class GameActivity : AppCompatActivity() {
 
     fun saveArrayData(data: Array<Auto?>){
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
-        var editor = sharedPref.edit()
+        val editor = sharedPref.edit()
 
-        var counter = 0;
+        var counter = 0
 
         editor.putInt("Length",data.size)
         for(i in data){
             Log.d("Value", "myArray: ${i?.upgradeCost.toString()}")
             counter += 1
             Log.d("Value", "Counter: $counter")
-            editor.putString("${counter.toString()}","${i?.upgradeLvl.toString()}|${i?.gainAmount.toString()}|${i?.gainTime.toString()}|${i?.upgradeCost.toString()}")
+            editor.putString(counter.toString(),"${i?.upgradeLvl.toString()}|${i?.gainAmount.toString()}|${i?.gainTime.toString()}|${i?.upgradeCost.toString()}")
         }
         editor.apply()
     }
@@ -76,13 +75,13 @@ class GameActivity : AppCompatActivity() {
         return BigDecimal(sharedPref.getFloat(type, 0f).toDouble())
     }
 
-    fun getArrayData(type: String): Array<Map<String, out BigDecimal>?> {
+    fun getArrayData(): Array<Map<String, BigDecimal>?> {
                 val sharedPref = getPreferences(Context.MODE_PRIVATE)
                 val len = sharedPref.getInt("Length", 0)
-                var returnList = arrayOfNulls<Map<String, out BigDecimal>?>(len)
+                val returnList = arrayOfNulls<Map<String, BigDecimal>?>(len)
                 Log.d("Value", len.toString())
                 for (i in 1 until len+1) {
-                    val value = sharedPref.getString("${i.toString()}", "")?.split("|")
+                    val value = sharedPref.getString(i.toString(), "")?.split("|")
 
 
                     returnList[i-1] =

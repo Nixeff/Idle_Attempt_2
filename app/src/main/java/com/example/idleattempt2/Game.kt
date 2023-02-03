@@ -1,10 +1,10 @@
 package com.example.idleattempt2
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.provider.SyncStateContract.Helpers.update
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
@@ -16,8 +16,8 @@ import java.math.RoundingMode
 class Game(context: Context ?) : SurfaceView(context), Runnable{
     private val gameThread = Thread(this)
     private val TAG = "GameLog"
-    val box = Rect(25,50,1025,1500)
-    val resetBtn = Rect(200,1400,800,1600)
+    private val box = Rect(25,50,1025,1500)
+    private val resetBtn = Rect(200,1400,800,1600)
 
     // List of automatic things
     private var autoList = arrayOfNulls<Auto>(5)
@@ -28,27 +28,23 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
     private var btnColor = Color.argb(255,255,193,177)
     private var btnDeColor = Color.argb(255,192,192,192)
     private var txtColor = Color.argb(255,0,0,0)
-    val acPaint = Paint()
-    val btnPaint = Paint()
-    val txtPaint = Paint()
-    val moneyTxtPaint = Paint()
-    val btnDePaint = Paint()
+    private val acPaint = Paint()
+    private val btnPaint = Paint()
+    private val txtPaint = Paint()
+    private val moneyTxtPaint = Paint()
+    private val btnDePaint = Paint()
 
-    var autoCreated = false;
+    private var autoCreated = false
 
 
     @Volatile
-    public var isRunning = false
-    public var money = BigDecimal("0")
-    var clickAmount = BigDecimal("0.01")
+    var isRunning = false
+    var money = BigDecimal("0")
 
     // Text
     private var moneyText = "${money.setScale(2, RoundingMode.FLOOR).toString()}$"
-    init {
 
-    }
-
-    fun setPaintSettings(){
+    private fun setPaintSettings(){
         acPaint.color = acColor
         btnPaint.color = btnColor
         btnDePaint.color = btnDeColor
@@ -57,17 +53,17 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         moneyTxtPaint.textSize = 128f
         txtPaint.textSize = 48f
     }
-    fun saveData(type:String,data:String){
+    private fun saveData(type:String, data:String){
         GameActivity.instance.saveData(type,data)
     }
-    fun getData(type: String):BigDecimal{
+    private fun getData(type: String):BigDecimal{
         return GameActivity.instance.getData(type)
     }
 
-    fun getAutoData(){
-        var temp = GameActivity.instance.getArrayData("Auto")
+    private fun getAutoData(){
+        val temp = GameActivity.instance.getArrayData()
 
-        for(i in 0..temp.size-1){
+        for(i in temp.indices){
             autoList[i]?.upgradeLvl = temp[i]?.get("upgradeLvl")?.toInt() ?: 0
             autoList[i]?.upgradeCost = temp[i]?.get("upgradeCost") ?: BigDecimal("1")
             autoList[i]?.gainAmount = temp[i]?.get("GainAmount") ?: BigDecimal("100")
@@ -76,7 +72,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         }
     }
 
-    fun createAuto(){
+    private fun createAuto(){
         setPaintSettings()
         autoList[0] = Auto(1,BigDecimal("2.0"),BigDecimal("0.5"),BigDecimal("500"),600,400, btnPaint,txtPaint,btnDePaint)
         autoList[1] = Auto(0,BigDecimal("5.0"), BigDecimal("1.0"),BigDecimal("1500"),600,600, btnPaint,txtPaint,btnDePaint)
@@ -86,7 +82,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         getAutoData()
     }
 
-    fun saveAuto(){
+    private fun saveAuto(){
         GameActivity.instance.saveArrayData(autoList)
     }
 
@@ -97,19 +93,13 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         }
     }
 
-    fun render(){
-        val holder = holder
-        if(holder == null){
-            return
-        }
-        val surface = holder.surface
-        if(surface == null){
-            return
-        }
+    private fun render(){
+        val holder = holder ?: return
+        val surface = holder.surface ?: return
         if(surface.isValid == false){
             return
         }
-        val canvas = holder.lockCanvas() // hardwarecanvas gpu
+        val canvas = holder.lockCanvas() // hardware-canvas gpu
 
         canvas.drawColor(bgColor)
 
@@ -124,11 +114,11 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         holder.unlockCanvasAndPost(canvas)
     }
 
-    fun update(){
+    private fun update(){
         moneyText = "${money.setScale(2,RoundingMode.FLOOR).toString()}$"
     }
 
-    fun reset(){
+    private fun reset(){
         money = BigDecimal("0")
 
         autoList[0]?.upgradeLvl = 1
@@ -163,6 +153,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
     }
 
     // Override the onTouchEvent method to detect when the user touches the screen
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             val x = event.x
@@ -178,12 +169,6 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
             }
         }
         return super.onTouchEvent(event)
-    }
-
-    fun addClick(){
-        money = money+clickAmount
-        moneyText = "${money.toString()}$"
-        saveData("Money",money.toString())
     }
 
     fun add(amount : BigDecimal){

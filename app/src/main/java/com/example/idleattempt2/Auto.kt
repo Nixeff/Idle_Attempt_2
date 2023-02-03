@@ -7,39 +7,32 @@ import android.util.Log
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, gainTime : BigDecimal, x : Int, y: Int, btnPaint: Paint, txtPaint: Paint, btnDePaint : Paint) : Runnable{
-    val TAG = "AUTO"
+class Auto(var upgradeLvl: Int,
+           var upgradeCost: BigDecimal,
+           var gainAmount: BigDecimal,
+           var gainTime: BigDecimal, // Pos
+           private var x: Int, private var y: Int, private var btnPaint: Paint, private var txtPaint: Paint, // Colors
+           private var btnDePaint: Paint
+) : Runnable{
+    private val TAG = "AUTO"
 
     private val loopThread = Thread(this)
-    public var upgradeLvl = upgradeLvl
-    public var upgradeCost = upgradeCost
-    public var gainAmount = gainAmount
-    public var gainTime = gainTime
 
     // Convert to seconds
-    var gainToSec = gainTime.divide(BigDecimal("1000"), 2,RoundingMode.HALF_UP)
-    var gainRunsPerSec = BigDecimal("1.0").divide(gainToSec, 2,RoundingMode.HALF_UP)
-    var gainPerSec = (gainRunsPerSec.multiply(gainAmount))
-
-    // Pos
-    var x = x
-    var y = y
-
-    // Colors
-    var btnDePaint = btnDePaint
-    var btnPaint = btnPaint
-    var txtPaint = txtPaint
+    private var gainToSec = gainTime.divide(BigDecimal("1000"), 2,RoundingMode.HALF_UP)
+    private var gainRunsPerSec = BigDecimal("1.0").divide(gainToSec, 2,RoundingMode.HALF_UP)
+    private var gainPerSec = (gainRunsPerSec.multiply(gainAmount))
 
     // Button blueprint
-    var btnUpgradeRect = Rect(50,y+10,450,y+100)
+    private var btnUpgradeRect = Rect(50,y+10,450,y+100)
 
     // Game things
     private var money = BigDecimal("0")
     var isRunning = false
-    var timeRemaining = gainTime
+    private var timeRemaining = gainTime
 
     // Upgrades
-    val upgradePath = mutableMapOf<Int, BigDecimal>().apply {
+    private val upgradePath = mutableMapOf<Int, BigDecimal>().apply {
         this[10] = BigDecimal("2")
         this[25] = BigDecimal("2")
         this[50] = BigDecimal("5")
@@ -60,7 +53,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
     }
 
     override fun run() {
-        // Gameloop
+        // Game loop
         while (isRunning){
             update()
         }
@@ -75,7 +68,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
     }
 
     // Upgrade/Level up
-    fun upgrade() {
+    private fun upgrade() {
         // Fetch money so we know if you can buy
         money = getMoney()
         if(money.compareTo(upgradeCost) >= 0){
@@ -87,7 +80,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
                 upgradeLvl = upgradeLvl+1
 
                 if(upgradePath.containsKey(upgradeLvl)){
-                    val path = upgradePath.get(upgradeLvl)
+                    val path = upgradePath[upgradeLvl]
                     gainAmount = gainAmount.plus(BigDecimal("0.2"))
                     gainAmount = gainAmount.multiply(path)
                     upgradeCost = upgradeCost.multiply(BigDecimal("1.1"))
@@ -99,7 +92,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
             updateText()
         }
     }
-    fun update() {
+    private fun update() {
         if(upgradeLvl != 0){
             if(gainTime.compareTo(BigDecimal("1000")) <= 0){
                 upgradeLvlText = "${gainPerSec.setScale(2,RoundingMode.FLOOR).toString()}$ /s"
@@ -117,7 +110,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
         }
     }
 
-    fun getMoney():BigDecimal{
+    private fun getMoney():BigDecimal{
         return BigDecimal(GameActivity.instance.game.money.toDouble())
     }
 
@@ -137,7 +130,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
         canvas.drawText(upgradeText, 50f,y.toFloat(), txtPaint)
     }
 
-    fun gain(){
+    private fun gain(){
         GameActivity.instance.game.add(gainAmount)
     }
 
@@ -153,7 +146,7 @@ class Auto(upgradeLvl : Int, upgradeCost : BigDecimal, gainAmount: BigDecimal, g
 
     fun checkClick(xTouch: Int, yTouch: Int){
 
-        if (btnUpgradeRect.contains(xTouch.toInt(), yTouch.toInt())) {
+        if (btnUpgradeRect.contains(xTouch, yTouch)) {
 
             upgrade()
         }
