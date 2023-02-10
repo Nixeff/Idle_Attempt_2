@@ -3,8 +3,10 @@ package com.example.idleattempt2
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Outline
 import android.graphics.Paint
 import android.graphics.Rect
+import android.provider.SyncStateContract.Helpers.update
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
@@ -14,20 +16,25 @@ import java.math.RoundingMode
 
 
 class Game(context: Context ?) : SurfaceView(context), Runnable{
-    private val gameThread = Thread(this)
+    private lateinit var gameThread : Thread
     private val TAG = "GameLog"
     private val box = Rect(25,50,1025,1500)
     private val resetBtn = Rect(200,1400,800,1600)
+    private val upgrades = Rect(200, 1700,800,1900)
+    private val upgradeWindow = Rect(50,300,1000,1600)
+    private val upgradeOutlineWindow = Rect(40,290,1010,1610)
+
 
     // List of automatic things
     private var autoList = arrayOfNulls<Auto>(5)
 
     // Colors
-    private var bgColor = Color.argb(100,182,145,107)
-    private var acColor = Color.argb(100,242,235,215)
+    private var bgColor = Color.argb(255,182,145,107)
+    private var acColor = Color.argb(255,242,235,215)
     private var btnColor = Color.argb(255,255,193,177)
     private var btnDeColor = Color.argb(255,192,192,192)
     private var txtColor = Color.argb(255,0,0,0)
+    private val bgPaint = Paint()
     private val acPaint = Paint()
     private val btnPaint = Paint()
     private val txtPaint = Paint()
@@ -39,12 +46,14 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
     @Volatile
     var isRunning = false
+    var upgradesOpen = false
     var money = BigDecimal("0")
 
     // Text
-    private var moneyText = "${money.setScale(2, RoundingMode.FLOOR).toString()}$"
+    private var moneyText = "$ ${money.setScale(2, RoundingMode.FLOOR).toString()}"
 
     private fun setPaintSettings(){
+        bgPaint.color = bgColor
         acPaint.color = acColor
         btnPaint.color = btnColor
         btnDePaint.color = btnDeColor
@@ -94,6 +103,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
     }
 
     private fun render(){
+
         val holder = holder ?: return
         val surface = holder.surface ?: return
         if(surface.isValid == false){
@@ -103,19 +113,26 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
         canvas.drawColor(bgColor)
 
-        canvas.drawRect(resetBtn,btnPaint)
+
         canvas.drawRect(box,acPaint)
+        canvas.drawRect(upgrades,btnPaint)
         canvas.drawText(moneyText, 150f,250f, moneyTxtPaint)
 
-        for (i in autoList.indices ){
-            autoList[i]?.render(canvas)
-        }
+        if(!upgradesOpen) {
+            for (i in autoList.indices) {
+                autoList[i]?.render(canvas)
 
+                canvas.drawRect(resetBtn,btnPaint)
+            }
+        } else{
+            canvas.drawRect(upgradeOutlineWindow,bgPaint)
+            canvas.drawRect(upgradeWindow,acPaint)
+        }
         holder.unlockCanvasAndPost(canvas)
     }
 
     private fun update(){
-        moneyText = "${money.setScale(2,RoundingMode.FLOOR).toString()}$"
+        moneyText = "$ ${money.setScale(2,RoundingMode.FLOOR).toString()}"
     }
 
     private fun reset(){
@@ -159,13 +176,23 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
             val x = event.x
             val y = event.y
             // Check if the user's touch coordinates are within the button's boundaries
-            for (i in autoList.indices ){
-                autoList[i]?.checkClick(x.toInt(),y.toInt())
-                saveAuto()
+            if(!upgradesOpen){
+                for (i in autoList.indices){
+                    autoList[i]?.checkClick(x.toInt(),y.toInt())
+                    saveAuto()
+                }
             }
             if (resetBtn.contains(x.toInt(), y.toInt())) {
                 reset()
                 saveAuto()
+            }
+            if (upgrades.contains(x.toInt(), y.toInt())){
+                if(upgradesOpen == false){
+                    upgradesOpen = true
+                } else{
+                    upgradesOpen = false
+                }
+
             }
         }
         return super.onTouchEvent(event)
@@ -182,6 +209,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
     }
 
     fun resume(){
+        gameThread = Thread(this)
         Log.d(TAG, "resume")
         isRunning = true
         money = getData("Money")

@@ -16,7 +16,7 @@ class Auto(var upgradeLvl: Int,
 ) : Runnable{
     private val TAG = "AUTO"
 
-    private val loopThread = Thread(this)
+    private lateinit var loopThread : Thread
 
     // Convert to seconds
     private var gainToSec = gainTime.divide(BigDecimal("1000"), 2,RoundingMode.HALF_UP)
@@ -24,7 +24,7 @@ class Auto(var upgradeLvl: Int,
     private var gainPerSec = (gainRunsPerSec.multiply(gainAmount))
 
     // Button blueprint
-    private var btnUpgradeRect = Rect(50,y+10,450,y+100)
+    private var btnUpgradeRect = Rect(50,y+20,450,y+110)
 
     // Game things
     private var money = BigDecimal("0")
@@ -64,7 +64,7 @@ class Auto(var upgradeLvl: Int,
         gainRunsPerSec = BigDecimal("1").divide(gainToSec, 2,RoundingMode.HALF_UP)
         gainPerSec = (gainRunsPerSec.multiply(gainAmount))
 
-        upgradeText = "Lvl: ${upgradeLvl.toString()} Cost: ${upgradeCost.setScale(2,RoundingMode.FLOOR).toString()}$"
+        upgradeText = "Lvl: ${upgradeLvl.toString()} Cost: $ ${upgradeCost.setScale(2,RoundingMode.FLOOR).toString()}"
     }
 
     // Upgrade/Level up
@@ -95,14 +95,14 @@ class Auto(var upgradeLvl: Int,
     private fun update() {
         if(upgradeLvl != 0){
             if(gainTime.compareTo(BigDecimal("1000")) <= 0){
-                upgradeLvlText = "${gainPerSec.setScale(2,RoundingMode.FLOOR).toString()}$ /s"
+                upgradeLvlText = "$ ${gainPerSec.setScale(2,RoundingMode.FLOOR).toString()} /s"
                 Thread.sleep(gainTime.toLong())
                 gain()
             } else{
                 repeat(gainTime.toInt()){
                     Thread.sleep(1)
                     timeRemaining = timeRemaining.minus(BigDecimal(1))
-                    upgradeLvlText = "${timeRemaining.divide(BigDecimal("1000")).setScale(2,RoundingMode.FLOOR).toString()} Sec ${gainAmount.toString()} $"
+                    upgradeLvlText = "${timeRemaining.divide(BigDecimal("1000")).setScale(2,RoundingMode.FLOOR).toString()} Sec $ ${gainAmount.toString()}"
                 }
                 timeRemaining = gainTime
                 gain()
@@ -135,11 +135,13 @@ class Auto(var upgradeLvl: Int,
     }
 
     fun startThread() {
+        loopThread = Thread(this)
         Log.d(TAG, "resume")
         loopThread.start()
     }
 
     fun joinThread(){
+        loopThread = Thread(this)
         Log.d(TAG, "pause")
         loopThread.join()
     }

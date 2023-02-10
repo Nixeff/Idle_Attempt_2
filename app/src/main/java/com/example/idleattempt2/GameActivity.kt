@@ -17,6 +17,8 @@ class GameActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // Fixes so that the orientation on yhe phoene is stuck on portrait
         requestedOrientation = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -29,22 +31,13 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            Log.d("test","main")
-        } else {
-            Log.d("test","not main")
-        }
         super.onCreate(savedInstanceState)
         instance = this
         game = Game(this)
         setContentView(game)
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
-
+    // Saves money
     fun saveData(type : String, data: String){
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
@@ -54,6 +47,7 @@ class GameActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    // Saves the state of the auto objects
     fun saveArrayData(data: Array<Auto?>){
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
@@ -62,28 +56,26 @@ class GameActivity : AppCompatActivity() {
 
         editor.putInt("Length",data.size)
         for(i in data){
-            Log.d("Value", "myArray: ${i?.upgradeCost.toString()}")
             counter += 1
-            Log.d("Value", "Counter: $counter")
             editor.putString(counter.toString(),"${i?.upgradeLvl.toString()}|${i?.gainAmount.toString()}|${i?.gainTime.toString()}|${i?.upgradeCost.toString()}")
         }
         editor.apply()
     }
 
+    // Gets the money
     fun getData(type: String): BigDecimal {
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         return BigDecimal(sharedPref.getFloat(type, 0f).toDouble())
     }
 
+    // Gets the data for the auto objects
     fun getArrayData(): Array<Map<String, BigDecimal>?> {
                 val sharedPref = getPreferences(Context.MODE_PRIVATE)
                 val len = sharedPref.getInt("Length", 0)
                 val returnList = arrayOfNulls<Map<String, BigDecimal>?>(len)
-                Log.d("Value", len.toString())
+
                 for (i in 1 until len+1) {
                     val value = sharedPref.getString(i.toString(), "")?.split("|")
-
-
                     returnList[i-1] =
                         mapOf(
                             "upgradeLvl" to BigDecimal(value?.get(0) ?: "0"),
@@ -91,10 +83,7 @@ class GameActivity : AppCompatActivity() {
                             "GainTime" to BigDecimal(value?.get(2) ?: "1"),
                             "upgradeCost" to BigDecimal(value?.get(3) ?: "0")
                         )
-                    Log.d("Value", "myArray: ${returnList.contentToString()}")
-
                 }
-        Log.d("Value", "myArray: ${returnList.contentToString()}")
         return returnList
     }
 
