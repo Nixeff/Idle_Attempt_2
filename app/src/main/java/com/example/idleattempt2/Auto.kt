@@ -146,6 +146,14 @@ class Auto(var upgradeLvl: Int,
         loopThread.join()
     }
 
+    fun takeTime(amount:BigDecimal){
+        gainTime.minus(amount)
+    }
+
+    fun divideTime(amount:BigDecimal){
+        gainTime.divide(amount)
+    }
+
     fun checkClick(xTouch: Int, yTouch: Int){
 
         if (btnUpgradeRect.contains(xTouch, yTouch)) {

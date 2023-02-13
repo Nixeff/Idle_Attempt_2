@@ -26,7 +26,8 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
 
     // List of automatic things
-    private var autoList = arrayOfNulls<Auto>(5)
+    var autoList = arrayOfNulls<Auto>(5)
+    private var upgradeList = arrayOfNulls<Upgrade>(1000)
 
     // Colors
     private var bgColor = Color.argb(255,182,145,107)
@@ -51,6 +52,10 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
     // Text
     private var moneyText = "$ ${money.setScale(2, RoundingMode.FLOOR).toString()}"
+
+    companion object {
+        lateinit var instance: Game
+    }
 
     private fun setPaintSettings(){
         bgPaint.color = bgColor
@@ -79,6 +84,8 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
             autoList[i]?.gainTime = temp[i]?.get("GainTime") ?: BigDecimal("1000")
             autoList[i]?.updateText()
         }
+        upgradeList[0] = Upgrade(BigDecimal("10"),0,"Speed", BigDecimal("2.0"),"Calculator","2x multiplier for first money maker")
+        upgradeList[1] = Upgrade(BigDecimal("100"),1,"Speed", BigDecimal("4.0"),"Nerd","4x multiplier for Second money maker")
     }
 
     private fun createAuto(){
@@ -127,6 +134,10 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         } else{
             canvas.drawRect(upgradeOutlineWindow,bgPaint)
             canvas.drawRect(upgradeWindow,acPaint)
+            for(i in upgradeList.indices){
+                upgradeList[i]?.render(canvas,txtPaint,100f,(i*200f)+400f)
+            }
+
         }
         holder.unlockCanvasAndPost(canvas)
     }
@@ -181,6 +192,13 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
                     autoList[i]?.checkClick(x.toInt(),y.toInt())
                     saveAuto()
                 }
+            } else{
+                for (i in upgradeList.indices){
+                    if(upgradeList[i]?.checkClick(x.toInt(),y.toInt()) == true){
+
+                    }
+
+                }
             }
             if (resetBtn.contains(x.toInt(), y.toInt())) {
                 reset()
@@ -224,6 +242,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
             i?.isRunning = true
         }
         getAutoData()
+
         gameThread.start()
     }
 
