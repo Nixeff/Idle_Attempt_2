@@ -151,7 +151,9 @@ class Auto(var upgradeLvl: Int,
     }
 
     fun divideTime(amount:BigDecimal){
-        gainTime.divide(amount)
+        Log.d("Log","${gainTime.toString()}")
+        gainTime = gainTime.divide(amount)
+        Log.d("Log","${gainTime.toString()}")
     }
 
     fun checkClick(xTouch: Int, yTouch: Int){

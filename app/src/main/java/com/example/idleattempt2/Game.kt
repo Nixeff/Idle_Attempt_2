@@ -7,10 +7,17 @@ import android.graphics.Outline
 import android.graphics.Paint
 import android.graphics.Rect
 import android.provider.SyncStateContract.Helpers.update
+import android.system.Os.remove
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
+import com.squareup.moshi.Json
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.adapter
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.*
+import java.io.File
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -44,7 +51,21 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
     private var autoCreated = false
 
-
+    data class Item(
+        @Json(name = "title") val title: String,
+        @Json(name = "desc") val desc: String,
+        @Json(name = "target") val target: Int,
+        @Json(name = "type") val type: String,
+        @Json(name = "amount") val amount: String,
+        @Json(name = "price") val price: String
+    )
+    val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+    val listType = Types.newParameterizedType(List::class.java, Item::class.java)
+    val adapter = moshi.adapter<List<Item>>(listType)
+    val assetManager = context?.assets
+    val inputStream = assetManager?.open("upgrades.json")
+    val jsonString = inputStream?.bufferedReader().use { it?.readText() }
+    val myObjectList = adapter.fromJson(jsonString)
     @Volatile
     var isRunning = false
     var upgradesOpen = false
@@ -84,8 +105,13 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
             autoList[i]?.gainTime = temp[i]?.get("GainTime") ?: BigDecimal("1000")
             autoList[i]?.updateText()
         }
-        upgradeList[0] = Upgrade(BigDecimal("10"),0,"Speed", BigDecimal("2.0"),"Calculator","2x multiplier for first money maker")
-        upgradeList[1] = Upgrade(BigDecimal("100"),1,"Speed", BigDecimal("4.0"),"Nerd","4x multiplier for Second money maker")
+    }
+
+    private fun createUpgrades(){
+        for(i in myObjectList?.indices!!){
+            upgradeList[i] = Upgrade(BigDecimal(myObjectList[i].price),myObjectList[i].target,myObjectList[i].type,
+                BigDecimal(myObjectList[i].amount),myObjectList[i].title,myObjectList[i].desc)
+        }
     }
 
     private fun createAuto(){
@@ -127,15 +153,16 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
         if(!upgradesOpen) {
             for (i in autoList.indices) {
-                autoList[i]?.render(canvas)
-
-                canvas.drawRect(resetBtn,btnPaint)
+                autoList[i]?.render(canvas)?:null
             }
+            canvas.drawRect(resetBtn,btnPaint)
         } else{
             canvas.drawRect(upgradeOutlineWindow,bgPaint)
             canvas.drawRect(upgradeWindow,acPaint)
             for(i in upgradeList.indices){
-                upgradeList[i]?.render(canvas,txtPaint,100f,(i*200f)+400f)
+                if(i<upgradeList.size-1){
+                    upgradeList[i]?.render(canvas,txtPaint,100f,(i*200f)+400f)
+                }
             }
 
         }
@@ -180,6 +207,17 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
         autoList[4]?.updateText()
     }
 
+    fun upgrade(index:Int){
+        if(upgradeList[index]?.type == "Speed"){
+            Log.d("Log",(upgradeList[index]?.amount?: BigDecimal("1")).toString())
+            autoList[upgradeList[index]?.target?:0]?.divideTime(upgradeList[index]?.amount?: BigDecimal("1"))
+            val temp = upgradeList.toMutableList()
+            temp.removeAt(index)
+            temp.toList()
+            upgradeList = temp.toTypedArray()
+        }
+    }
+
     // Override the onTouchEvent method to detect when the user touches the screen
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -194,9 +232,12 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
                 }
             } else{
                 for (i in upgradeList.indices){
-                    if(upgradeList[i]?.checkClick(x.toInt(),y.toInt()) == true){
-
+                    if(i<upgradeList.size-1){
+                        if(upgradeList[i]?.checkClick(x.toInt(),y.toInt())?:false == true){
+                            upgrade(i)
+                        }
                     }
+
 
                 }
             }
@@ -235,6 +276,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
         if(!autoCreated){
             createAuto()
+            createUpgrades()
         }
 
         for(i in autoList){
