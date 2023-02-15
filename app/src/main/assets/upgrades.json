@@ -1,26 +1,26 @@
 [
   {
-    "title": "Hi 0",
-    "desc": "test 2",
+    "title": "Calculator",
+    "desc": "2x speed on the first moneymaker",
     "target": 0,
     "type": "Speed",
     "amount": "2.0",
-    "price": "200"
+    "price": "100"
   },
   {
-    "title": "Hi 1",
-    "desc": "test 4",
+    "title": "Accountant",
+    "desc": "3x speed on the second moneymaker",
     "target": "1",
     "type": "Speed",
-    "amount": "4.0",
-    "price": "200"
+    "amount": "3.0",
+    "price": "1000"
   },{
-    "title": "Hi 2",
-    "desc": "test 4",
+    "title": "It rains money!",
+    "desc": "2x speed too third moneymaker",
     "target": "2",
     "type": "Speed",
-    "amount": "4.0",
-    "price": "200"
+    "amount": "2.0",
+    "price": "5000"
   },{
     "title": "Hi",
     "desc": "test",

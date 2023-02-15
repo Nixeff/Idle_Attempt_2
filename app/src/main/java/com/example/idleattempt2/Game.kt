@@ -160,8 +160,8 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
             canvas.drawRect(upgradeOutlineWindow,bgPaint)
             canvas.drawRect(upgradeWindow,acPaint)
             for(i in upgradeList.indices){
-                if(i<upgradeList.size-1){
-                    upgradeList[i]?.render(canvas,txtPaint,100f,(i*200f)+400f)
+                if(i<upgradeList.size-1 && i < 6){
+                    upgradeList[i]?.render(canvas,txtPaint,100f,(i*200f)+400f,money)
                 }
             }
 
@@ -208,13 +208,15 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
     }
 
     fun upgrade(index:Int){
-        if(upgradeList[index]?.type == "Speed"){
+        if(upgradeList[index]?.type == "Speed" && upgradeList[index]?.cost!! < money){
+            money = money- upgradeList[index]?.cost!!
             Log.d("Log",(upgradeList[index]?.amount?: BigDecimal("1")).toString())
             autoList[upgradeList[index]?.target?:0]?.divideTime(upgradeList[index]?.amount?: BigDecimal("1"))
             val temp = upgradeList.toMutableList()
             temp.removeAt(index)
             temp.toList()
             upgradeList = temp.toTypedArray()
+            autoList[upgradeList[index]?.target?:0]?.updateText()
         }
     }
 
@@ -241,7 +243,7 @@ class Game(context: Context ?) : SurfaceView(context), Runnable{
 
                 }
             }
-            if (resetBtn.contains(x.toInt(), y.toInt())) {
+            if (resetBtn.contains(x.toInt(), y.toInt()) && !upgradesOpen) {
                 reset()
                 saveAuto()
             }
